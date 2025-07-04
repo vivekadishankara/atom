@@ -1,3 +1,9 @@
+mod habit;
+mod setup;
+
+use crate::setup::Setup;
+
 fn main() {
-    println!("Hello, world!");
+    let mut setup = Setup::new();
+    setup.start();
 }
