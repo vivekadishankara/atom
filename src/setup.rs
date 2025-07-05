@@ -18,14 +18,21 @@ impl Setup {
 
     pub fn start(&mut self) {
         self.ask_current_habits();
-        let habit_identity_matrix = Self::build_habit_identity_matrix(&self.current_habits);
-        println!("Here is your habit identity matrix, telling you how many of your habits are voting for yout identities")
-        println!("{:?}", habit_identity_matrix);
-        
+        self.calculate_current_matrix();
+        self.ask_desired_habits();
+        self.calculate_desired_matrix();
     }
 
     fn ask_current_habits(&mut self) {
-        println!("Enter details of your current habits");
+        Self::ask_habits("current", &mut self.current_habits);
+    }
+
+    fn ask_desired_habits(&mut self) {
+        Self::ask_habits("desired", &mut self.desired_habits);
+    }
+
+    fn ask_habits(habit_stage: &str, habits: &mut Vec<Habit>) {
+        println!("Enter details of your {} habits", habit_stage);
 
         loop {
             let habit = Self::ask_habit_name();
@@ -36,7 +43,7 @@ impl Setup {
 
             let current_habit = Habit::new(habit, nature, voting_identity);
 
-            self.current_habits.push(current_habit)
+            habits.push(current_habit)
         }
     }
 
@@ -69,6 +76,7 @@ impl Setup {
     }
 
     fn ask_voting_identity() -> String {
+        // TODO: autocomplete can be added using rustyline
         loop {
             print!("What is the voting identity for this habit: ");
             io::stdout().flush().unwrap();
@@ -90,5 +98,17 @@ impl Setup {
             *identity_map.entry(a_habit.voting_identity.clone()).or_insert(0) += 1;
         }
         identity_map
+    }
+
+    fn calculate_current_matrix(&self) {
+        let habit_identity_matrix = Self::build_habit_identity_matrix(&self.current_habits);
+        println!("Here is your habit identity matrix, telling you how many of your habits are voting for your identities");
+        println!("{:?}", &habit_identity_matrix);
+    }
+
+    fn calculate_desired_matrix(&self) {
+        let habit_identity_matrix = Self::build_habit_identity_matrix(&self.desired_habits);
+        println!("Here is your habit identity matrix for your desired habits");
+        println!("{:?}", &habit_identity_matrix);
     }
 }
