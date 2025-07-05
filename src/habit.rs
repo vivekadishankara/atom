@@ -1,7 +1,7 @@
 pub struct Habit {
-    name: String,
-    nature: char,
-    voting_identity: String,
+    pub name: String,
+    pub nature: char,
+    pub voting_identity: String,
 }
 
 impl Habit {

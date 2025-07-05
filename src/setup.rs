@@ -1,6 +1,7 @@
 use crate::habit::Habit;
 use std::io;
 use std::io::Write;
+use std::collections::HashMap;
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -17,6 +18,9 @@ impl Setup {
 
     pub fn start(&mut self) {
         self.ask_current_habits();
+        let habit_identity_matrix = Self::build_habit_identity_matrix(&self.current_habits);
+        println!("Here is your habit identity matrix, telling you how many of your habits are voting for yout identities")
+        println!("{:?}", habit_identity_matrix);
         
     }
 
@@ -44,7 +48,7 @@ impl Setup {
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("Failed to read");
 
-        input
+        input.trim().to_string()
     }
 
     fn ask_habit_nature() -> char {
@@ -71,11 +75,20 @@ impl Setup {
 
             let mut input = String::new();
             io::stdin().read_line(&mut input).expect("Failed to read");
-
-            if !input.trim().is_empty() {
+            
+            let input = input.trim().to_string();
+            if !input.is_empty() {
                 return input;
             }
             println!("Please enter a non-empty string");
         }
+    }
+
+    fn build_habit_identity_matrix(habits: &Vec<Habit>) -> HashMap<String, i32> {
+        let mut identity_map = HashMap::new();
+        for a_habit in habits.iter() {
+            *identity_map.entry(a_habit.voting_identity.clone()).or_insert(0) += 1;
+        }
+        identity_map
     }
 }
