@@ -2,6 +2,7 @@ use crate::habit::Habit;
 use std::io;
 use std::io::Write;
 use std::collections::HashMap;
+use std::fs;
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -21,6 +22,7 @@ impl Setup {
         self.calculate_current_matrix();
         self.ask_desired_habits();
         self.calculate_desired_matrix();
+        self.write_habits_to_file();
     }
 
     fn ask_current_habits(&mut self) {
@@ -110,5 +112,22 @@ impl Setup {
         let habit_identity_matrix = Self::build_habit_identity_matrix(&self.desired_habits);
         println!("Here is your habit identity matrix for your desired habits");
         println!("{:?}", &habit_identity_matrix);
+    }
+
+    fn write_habits_to_file(&self) {
+        let mut content = String::from("current habits,");
+        for a_habit in self.current_habits.iter() {
+            content.push('\n');
+            let habit_line = a_habit.to_file_line();
+            content.push_str(&habit_line);
+        }
+        content.push_str("\ndesired habits,");
+        for a_habit in self.desired_habits.iter() {
+            content.push('\n');
+            let habit_line = a_habit.to_file_line();
+            content.push_str(&habit_line);
+        }
+        content.push('\n');
+        fs::write("habit_setup.csv", content).expect("Uable to write file");
     }
 }

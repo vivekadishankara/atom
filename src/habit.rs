@@ -12,4 +12,8 @@ impl Habit {
             voting_identity,
         }
     }
+
+    pub fn to_file_line(&self) -> String {
+        format!("\"{}\",{},{},", self.name, self.nature, self.voting_identity)
+    }
 }
