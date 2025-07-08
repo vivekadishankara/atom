@@ -1,8 +1,10 @@
-use crate::habit::Habit;
 use std::io;
 use std::io::Write;
 use std::collections::HashMap;
 use std::fs;
+
+use crate::habit::Habit;
+use crate::file_names::habit_setup_file;
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -128,6 +130,6 @@ impl Setup {
             content.push_str(&habit_line);
         }
         content.push('\n');
-        fs::write("habit_setup.csv", content).expect("Uable to write file");
+        fs::write(habit_setup_file, content).expect("Uable to write file");
     }
 }
