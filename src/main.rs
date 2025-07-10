@@ -8,6 +8,5 @@ use crate::manager::Manager;
 
 fn main() {
     let this_args: Vec<String> = args().collect();  
-    let mut manager = Manager::new();
-    manager.enact(&this_args);
+    Manager::enact(&this_args);
 }

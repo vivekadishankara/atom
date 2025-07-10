@@ -1,10 +1,12 @@
 use std::io;
+use std::io::ErrorKind;
 use std::io::Write;
 use std::collections::HashMap;
 use std::fs;
+use std::process;
 
 use crate::habit::Habit;
-use crate::file_names::habit_setup_file;
+use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE};
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -12,19 +14,51 @@ pub struct Setup {
 }
 
 impl Setup {
-    pub fn new() -> Self {
+    pub fn from_files() -> Self {
+        let current_habits = Self::read_from_file(CURRENT_HABITS_FILE);
+        let desired_habits = Self::read_from_file(DESIRED_HABITS_FILE);
+
         Self {
-            current_habits: Vec::new(),
-            desired_habits: Vec::new(),
+            current_habits,
+            desired_habits,
         }
+    }
+
+    pub fn habits_required(&self) -> bool {
+        self.current_habits.is_empty() && self.desired_habits.is_empty()
+    }
+
+    fn read_from_file(habit_file: &str) -> Vec<Habit> {
+        let mut habits: Vec<Habit> = Vec::new();
+
+        let content = match fs::read_to_string(habit_file) {
+            Ok(file_content) => {
+                file_content
+            }
+            Err(e) if e.kind() == ErrorKind::NotFound => {
+                String::new()
+            },
+            Err(e) => {
+                println!("Not able to open setup file due to error {}", e);
+                process::exit(1);
+            },
+        };
+
+        for line in content.lines().skip(1) {
+            let a_habit = Habit::from_file_line(line);
+            habits.push(a_habit);
+        }
+
+        habits
     }
 
     pub fn start(&mut self) {
         self.ask_current_habits();
         self.calculate_current_matrix();
+        self.write_current_habits();
         self.ask_desired_habits();
         self.calculate_desired_matrix();
-        self.write_habits_to_file();
+        self.write_desired_habits();
     }
 
     fn ask_current_habits(&mut self) {
@@ -116,20 +150,21 @@ impl Setup {
         println!("{:?}", &habit_identity_matrix);
     }
 
-    fn write_habits_to_file(&self) {
-        let mut content = String::from("current habits,");
-        for a_habit in self.current_habits.iter() {
-            content.push('\n');
+    fn write_habits_to_file(habits: &Vec<Habit>, file_name: &str) {
+        let mut content = String::from("name,nature,voting identity\n");
+        for a_habit in habits.iter() {
             let habit_line = a_habit.to_file_line();
             content.push_str(&habit_line);
-        }
-        content.push_str("\ndesired habits,");
-        for a_habit in self.desired_habits.iter() {
             content.push('\n');
-            let habit_line = a_habit.to_file_line();
-            content.push_str(&habit_line);
         }
-        content.push('\n');
-        fs::write(habit_setup_file, content).expect("Uable to write file");
+        fs::write(file_name, content).expect("Uable to write file");
+    }
+
+    fn write_current_habits(&self) {
+        Self::write_habits_to_file(&self.current_habits, CURRENT_HABITS_FILE);
+    }
+
+    fn write_desired_habits(&self) {
+        Self::write_habits_to_file(&self.desired_habits, DESIRED_HABITS_FILE);
     }
 }
