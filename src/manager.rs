@@ -1,28 +1,28 @@
 use crate::setup::Setup;
+use crate::file_names::remove_habit_files;
 
-pub struct Manager {
-    pub setup: Setup,
-}
+pub struct Manager;
 
 impl Manager {
-    pub fn new() -> Self {
-        let mut setup = Setup::new();
-
-        Self {
-            setup,
-        }
-    }
-
-    pub fn enact(&mut self, args: &[String]) {
+    pub fn enact(args: &[String]) {
         if args.len() < 2 {
             Self::help();
             return
         }
         match &args[1][..] {
-            "setup" => self.setup.start(),
+            "setup" => {
+                let mut setup = Setup::from_files();
+                if setup.habits_required() {
+                    println!("Creating habit files");
+                } else {
+                    println!("Non-Empty habit files found, reading habits. If you want start anew, run the reset command");
+                }
+                setup.start();
+            }
+            "reset" => remove_habit_files(),
             "help" => Self::help(),
             _ => Self::help(),
-        }
+        };
     }
 
     fn help() {
