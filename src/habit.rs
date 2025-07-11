@@ -23,10 +23,6 @@ impl Habit {
         let nature = habit_components[1].chars().next().unwrap();
         let voting_identity = habit_components[2].to_string();
 
-        Self {
-            name,
-            nature,
-            voting_identity,
-        }
+        Self::new(name, nature, voting_identity)
     }
 }

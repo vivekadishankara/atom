@@ -2,6 +2,7 @@ use std::fs;
 
 pub const CURRENT_HABITS_FILE: &str = "current_habits.csv";
 pub const DESIRED_HABITS_FILE: &str = "desired_habits.csv";
+pub const TASKS_FILE: &str = "tasks.txt";
 
 
 pub fn remove_habit_files() {
