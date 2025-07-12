@@ -6,7 +6,7 @@ use std::fs;
 use std::process;
 
 use crate::habit::Habit;
-use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE};
+use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE, TASKS_FILE};
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -59,6 +59,7 @@ impl Setup {
         self.ask_desired_habits();
         self.calculate_desired_matrix();
         self.write_desired_habits();
+        self.ask_implementation_intentions();
     }
 
     fn ask_current_habits(&mut self) {
@@ -166,5 +167,26 @@ impl Setup {
 
     fn write_desired_habits(&self) {
         Self::write_habits_to_file(&self.desired_habits, DESIRED_HABITS_FILE);
+    }
+
+    fn ask_implementation_intentions(&mut self) {
+        println!("Now let us break down the habits into doable tasks.\
+            We then need to set a specific time and place for the task like so:\n\
+            [Desired task] at [time] in [place]\n\
+            We can also stack habits with existing habits like so:\n\
+            [Desired task] after [Current habit]");
+        
+        let mut content = String::new();
+
+        for a_habit in self.desired_habits.iter() {
+            println!("Enter the doable task for the habit: {}", a_habit.name.clone());
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Failed to read line");
+
+            content.push_str(&input.trim().to_string());
+            content.push('\n');
+        }
+
+        fs::write(TASKS_FILE, content).expect("Failed to write the file");
     }
 }

@@ -1,12 +1,14 @@
 use crate::setup::Setup;
 use crate::file_names::remove_habit_files;
+use crate::todo::Todo;
 
 pub struct Manager;
 
 impl Manager {
     pub fn enact(args: &[String]) {
         if args.len() < 2 {
-            Self::help();
+            let todo = Todo::new();
+            todo.list();
             return
         }
         match &args[1][..] {
@@ -20,6 +22,10 @@ impl Manager {
                 setup.start();
             }
             "reset" => remove_habit_files(),
+            "list" => {
+                let todo = Todo::new();
+                todo.list();
+            }
             "help" => Self::help(),
             _ => Self::help(),
         };
