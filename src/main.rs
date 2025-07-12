@@ -2,6 +2,7 @@ mod file_names;
 mod habit;
 mod setup;
 mod manager;
+mod todo;
 
 use std::env::args;
 use crate::manager::Manager;
