@@ -4,9 +4,10 @@ use std::io::Write;
 use std::collections::HashMap;
 use std::fs;
 use std::process;
+use chrono::Local;
 
 use crate::habit::Habit;
-use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE, TASKS_FILE};
+use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE, TASKS_FILE, TRACKER_FILE};
 
 pub struct Setup {
     current_habits: Vec<Habit>,
@@ -60,6 +61,7 @@ impl Setup {
         self.calculate_desired_matrix();
         self.write_desired_habits();
         self.ask_implementation_intentions();
+        self.make_tracker_file();
     }
 
     fn ask_current_habits(&mut self) {
@@ -188,5 +190,22 @@ impl Setup {
         }
 
         fs::write(TASKS_FILE, content).expect("Failed to write the file");
+    }
+
+    pub fn make_tracker_file(&self) {
+        let mut content = String::from("date");
+        for i in 0..self.desired_habits.len() {
+            content.push_str(&format!(",{}",i+1));
+        }
+
+        let today = Local::now().date_naive();
+        content.push_str(&format!("\n{}", today));
+
+        for _ in 0..self.desired_habits.len() {
+            content.push(',');
+        }
+        content.push('\n');
+
+        fs::write(TRACKER_FILE, content).expect("Failed to write the file");
     }
 }

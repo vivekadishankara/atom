@@ -3,6 +3,7 @@ mod habit;
 mod setup;
 mod manager;
 mod todo;
+mod task;
 
 use std::env::args;
 use crate::manager::Manager;
