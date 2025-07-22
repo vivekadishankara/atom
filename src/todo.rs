@@ -1,7 +1,7 @@
 use std::io;
 use std::io::Write;
 use chrono::{Duration, Local, NaiveDate};
-use std::fs;
+use std::fs::{self, OpenOptions};
 use std::io::ErrorKind;
 use std::process;
 use crate::file_names::{TASKS_FILE, TRACKER_FILE};
@@ -103,31 +103,33 @@ impl Todo {
 
     pub fn track(&self) {
         let content = Self::read_tracker();
-        let mut lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+        let last_line = content.lines().rev().next();
 
-        let date_str = lines
-            .last()
-            .and_then(|line| line.split(',').next())
-            .unwrap()
-            .to_string();
-
-        let mut last_date = match NaiveDate::parse_from_str(&date_str, "%Y-%m-%d") {
-            Ok(date) => date + Duration::days(1),
-            Err(_) => Local::now().date_naive(),
+        let last_date = if let Some(line) = last_line {
+            let date_str = line.split(',').next().unwrap_or("");
+            NaiveDate::parse_from_str(date_str, "%Y-%m-%d").unwrap_or(Local::now().date_naive())
+        } else {
+            Local::now().date_naive()
         };
+        let mut new_date = last_date + Duration::days(1);
 
-        let today = Local::now().date_naive();
-        let tomorrow = today + Duration::days(1);
+        let tomorrow = Local::now().date_naive() + Duration::days(1);
 
-        while last_date != tomorrow {
-            println!("For date: {}", last_date);
-            let completions = self.ask_completion();
-            let last_line = format!("{}{}", last_date, completions);
-            lines.push(last_line);
-            last_date += Duration::days(1);
+        if new_date == tomorrow {
+            println!("Tasks for the day have been tracked");
+            return;
         }
-        let mut updated_content = lines.join("\n");
-        updated_content.push('\n');
-        fs::write(TRACKER_FILE, updated_content).expect("Failed to write file");
+
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(TRACKER_FILE)
+            .unwrap();
+
+        while new_date != tomorrow {
+            println!("For date: {}", new_date);
+            let completions = self.ask_completion();
+            write!(file, "{}{}\n", new_date, completions).expect("Failed to write to file");
+            new_date += Duration::days(1);
+        }
     }
 }
