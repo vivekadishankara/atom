@@ -25,6 +25,10 @@ impl Manager {
             "list" => {
                 let todo = Todo::new();
                 todo.list();
+            },
+            "track" => {
+                let todo = Todo::new();
+                todo.track();
             }
             "help" => Self::help(),
             _ => Self::help(),

@@ -4,7 +4,6 @@ use std::io::Write;
 use std::collections::HashMap;
 use std::fs;
 use std::process;
-use chrono::Local;
 
 use crate::habit::Habit;
 use crate::file_names::{CURRENT_HABITS_FILE, DESIRED_HABITS_FILE, TASKS_FILE, TRACKER_FILE};
@@ -198,12 +197,6 @@ impl Setup {
             content.push_str(&format!(",{}",i+1));
         }
 
-        let today = Local::now().date_naive();
-        content.push_str(&format!("\n{}", today));
-
-        for _ in 0..self.desired_habits.len() {
-            content.push(',');
-        }
         content.push('\n');
 
         fs::write(TRACKER_FILE, content).expect("Failed to write the file");
