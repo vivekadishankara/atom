@@ -29,6 +29,9 @@ impl Manager {
             "track" => {
                 let todo = Todo::new();
                 todo.track();
+            },
+            "streak" => {
+                Todo::streak();
             }
             "help" => Self::help(),
             _ => Self::help(),
