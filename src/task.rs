@@ -17,12 +17,10 @@ impl Task {
 
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let task_line: String;
         if self.done {
-            task_line = self.name.strikethrough().to_string();
+            write!(f, "{}", self.name.strikethrough())
         } else {
-            task_line = self.name.clone();
+            write!(f, "{}", self.name)
         }
-        write!(f, "{}", task_line)
     }
 }

@@ -32,6 +32,8 @@ impl Todo {
             Err(e) => { 
                 if e.kind() == ErrorKind::NotFound {
                     println!("Task file does not exist. Please run 'setup' to make one.");
+                } else {
+                    println!("There was an error opening the task file.");
                 }
                 process::exit(1);
             }
@@ -52,6 +54,8 @@ impl Todo {
             Err(e) => { 
                 if e.kind() == ErrorKind::NotFound {
                     println!("Tracker file does not exist. Please run 'setup' to make one.");
+                } else {
+                    println!("There was error opening the tracker file");
                 }
                 process::exit(1);
             }
@@ -130,6 +134,27 @@ impl Todo {
             let completions = self.ask_completion();
             write!(file, "{}{}\n", new_date, completions).expect("Failed to write to file");
             new_date += Duration::days(1);
+        }
+    }
+
+    pub fn streak() {
+        let tasks = Self::read_tasks();
+        let tracker_content = Self::read_tracker();
+        let mut task_streaks: Vec<String> = vec![String::new(); tasks.len()];
+
+        for line in tracker_content.lines().skip(1) {
+            let elements: Vec<&str> = line.split(',').collect();
+            for (a_streak, ele) in task_streaks.iter_mut().zip(elements.iter().skip(1)) {
+                match *ele {
+                    "1" => a_streak.push('_'),
+                    _ => a_streak.push(' '),
+                }
+            }
+        }
+
+        for (a_task, a_streak) in tasks.iter().zip(task_streaks) {
+            let formatted = format!("{:<30}{}", a_task.name, a_streak);
+            println!("{}", formatted);
         }
     }
 }
